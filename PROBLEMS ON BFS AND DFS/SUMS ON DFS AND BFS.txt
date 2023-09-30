@@ -1,0 +1,511 @@
+####number of provinces
+void dfs(int node,int vis[],vector<int> adj[]){
+        vis[node]=1;
+        for(auto it: adj[node]){
+            if(!vis[it]){
+                dfs(it,vis,adj);
+            }
+        }
+    }
+int findNumOfProvinces(vector<vector<int>>& roads, int n) {
+    //converting matrix  to list
+    vector<int>adj[n];
+    for(int i=0;i<n;i++){
+        for(int j=0;j<n;j++){
+            if(roads[i][j]==1 && i!=j){
+                adj[i].push_back(j);
+                adj[j].push_back(i);
+            }
+        }
+    }
+        int vis[n]={0};
+        int count=0;
+        for(int i=0;i<n;i++){
+            if (!vis[i]) {
+                count++;
+                dfs(i, vis, adj);
+            }
+        }
+        return count;
+}
+
+
+#### number of islands
+    private:
+        void bfs(int i,int j,int n,int m,  vector<vector<int>>&vis,vector<vector<char>>& grid){
+    vis[i][j]=1;
+    queue<pair<int,int>>q;
+    q.push({i,j});
+    while(!q.empty()){
+        int row=q.front().first;
+        int col=q.front().second;
+        q.pop();
+        for(int k=-1;k<=1;k++){
+            for(int p=-1;p<=1;p++){
+                int nrow=row+k;
+                int ncol=col+p;
+                if(nrow>=0 && nrow<n && ncol>=0 && ncol<m && grid[nrow][ncol]=='1' && !vis[nrow][ncol]){
+                    vis[nrow][ncol]=1;
+                    q.push({nrow, ncol});
+                }
+            }
+        }
+    }
+}
+  public:
+
+    int numIslands(vector<vector<char>>& grid)
+{
+    int n=grid.size();
+    int m=grid[0].size();
+    vector<vector<int>>vis(n,vector<int>(m,0));
+    int count=0;
+    for(int i=0;i<n;i++){
+        for(int j=0;j<m;j++){
+                if (grid[i][j] == '1' && !vis[i][j]) {
+                    count++;
+                    bfs(i, j, n, m, vis, grid);
+          }
+        }
+    }
+    return count;
+}
+
+
+###flood fill algorithm
+class Solution {
+    private:
+    void dfs(int inicolor,int i,int j, vector<vector<int>>& image,vector<vector<int>>&newmat,int newColor,int *del1,int *del2){
+        newmat[i][j]=newColor;
+        int n=image.size();
+        int m=image[0].size();
+        for(int k=0;k<4;k++){
+            int newrow=i+del1[k];
+            int newcol=j+del2[k];
+            if(newrow>=0 && newrow<n && newcol>=0 && newcol<m && image[newrow][newcol]==inicolor && newmat[newrow][newcol]!=newColor){
+                dfs(inicolor,newrow,newcol,image,newmat,newColor,del1,del2);
+            }
+        }
+        
+    }
+public:
+    vector<vector<int>> floodFill(vector<vector<int>>& image, int sr, int sc, int newColor) {
+        int inicolor=image[sr][sc];
+        int m=image.size();
+        int n=image[0].size();
+        vector<vector<int>>newmat=image;
+        int del1[]={0,+1,-1,0};
+        int del2[]={-1,0,0,+1};
+        dfs(inicolor,sr,sc,image,newmat,newColor,del1,del2);
+        return newmat;
+        
+    }
+};
+
+####rotten oranges
+class Solution 
+{ 
+    public:
+    int orangesRotting(vector<vector<int>>& grid) {
+         int m=grid.size();
+         int n=grid[0].size();
+         queue<pair<pair<int,int>,int>>q;
+         int vis[m][n];
+         for(int i=0;i<m;i++){
+             for(int j=0;j<n;j++){
+                 if(grid[i][j]==2){
+                     q.push({{i,j},0});
+                     vis[i][j]=2;
+                 }
+                 else{
+                     vis[i][j]=0;
+                 }
+             }
+         }
+         int count=0;
+         int del1[]={-1,+1,0,0};
+         int del2[]={0,0,-1,+1};
+         while(!q.empty()){
+             int nrow=q.front().first.first;
+             int ncol=q.front().first.second;
+             int time1=q.front().second;
+             count=max(time1,count);
+             q.pop();
+             for(int i=0;i<4;i++){
+                 int newr=nrow+del1[i];
+                 int newc=ncol+del2[i];
+                 
+                 if(newr>=0 && newr<m && newc>=0 && newc<n && grid[newr][newc]==1 && vis[newr][newc]!=2){
+                     q.push({{newr,newc},count+1});
+                     vis[newr][newc]=2;
+                 }
+             }
+             
+         }
+         for(int i=0;i<m;i++){
+             for(int j=0;j<n;j++){
+                 if(grid[i][j]==1 && vis[i][j]!=2){
+                     return -1;
+                 }
+             }
+         }
+         return count;
+    }
+};
+
+
+###detect cycle undirected in bfs
+class Solution {
+    private:
+    bool detect(int src,int vis[], vector<int> adj[]){
+        vis[src]=1;
+         queue<pair<int,int>>q;
+         q.push({src,-1});
+         while(!q.empty()){
+             int node=q.front().first;
+             int parent=q.front().second;
+             q.pop();
+              for(auto it:adj[node]){
+                  if(!vis[it]){
+                      vis[it]=1;
+                      q.push({it,node});
+                  }
+                  else if(parent!=it){
+                      return true;
+                  }
+              }
+         }
+         return false;
+        
+    }
+  public:
+    // Function to detect cycle in an undirected graph.
+    bool isCycle(int V, vector<int> adj[]) {
+        int vis[V]={0};
+        for(int i=0;i<V;i++){
+            if(!vis[i]){
+                if(detect(i,vis,adj)==true){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+        
+        
+};
+
+### detect cycle undirected using dfs
+class Solution {
+    private:
+    bool dfs(int node,int parent,vector<int> adj[],int *vis){
+          vis[node]=1;
+          for(auto it:adj[node]){
+              if(!vis[it]){
+                  if(dfs(it,node,adj,vis)==true) return true;
+              }
+              else if(parent!=it){
+                  return true;
+              }
+          }
+          return false;
+    }
+  public:
+    // Function to detect cycle in an undirected graph.
+    bool isCycle(int V, vector<int> adj[]) {
+        int vis[V]={0} ;
+        for(int i=0;i<V;i++){
+            if(!vis[i]){
+                if(dfs(i,-1,adj,vis)==true) return true;
+            }
+        }
+        return false;
+    }
+};
+
+
+####distance of nearest cell having 1 0/1  matrix
+class Solution 
+{
+    public:
+    //Function to find distance of nearest 1 in the grid for each cell.
+	vector<vector<int>>nearest(vector<vector<int>>grid)
+	{
+	    int n=grid.size();
+	    int m=grid[0].size();
+	    vector<vector<int>>dist(n,vector<int>(m,0));
+	    queue<pair<pair<int,int>,int>>q;
+	    vector<vector<int>>vis(n,vector<int>(m,0));
+	    for(int i=0;i<n;i++){
+	        for(int j=0;j<m;j++){
+	            if(grid[i][j]==1){
+	                q.push({{i,j},0});
+	                vis[i][j]=1;
+	            }
+	            else{
+	                vis[i][j]=0;
+	            }
+	        }
+	    }
+	    int del1[]={-1,0,+1,0};
+	    int del2[]={0,+1,0,-1};
+	    while(!q.empty()){
+	        int r=q.front().first.first;
+	        int c=q.front().first.second;
+	        int p=q.front().second;
+	        q.pop();
+	        dist[r][c]=p;
+	        for(int i=0;i<4;i++){
+	            int nrow=r+del1[i];
+	            int ncol=c+del2[i];
+	            if(nrow>=0 && nrow<n && ncol>=0 && ncol<m && grid[nrow][ncol]==0 && vis[nrow][ncol]!=1){
+	                vis[nrow][ncol]=1;
+	                q.push({{nrow,ncol},p+1});
+	            }
+	        }
+	    }
+	    return dist;
+	}
+};
+
+
+####REPLACE 0 with X
+class Solution{
+    private:
+    void dfs(int p,int q,vector<vector<char>>&mat, vector<vector<int>>&vis,int *del1,int *del2,int n,int m){
+        vis[p][q]=1;
+        for(int i=0;i<4;i++){
+            int nrow=p+del1[i];
+            int ncol=q+del2[i];
+             if(nrow>=0 && nrow<n && ncol>=0 && ncol<m && mat[nrow][ncol]=='O' && !vis[nrow][ncol]){
+	                dfs(nrow,ncol,mat,vis,del1,del2,n,m);
+	            }
+        }
+    }
+public:
+    vector<vector<char>> fill(int n, int m, vector<vector<char>> mat)
+    {
+        vector<vector<int>>vis(n,vector<int>(m,0));
+         int del1[]={-1,0,+1,0};
+	    int del2[]={0,+1,0,-1};
+        for(int j=0;j<m;j++){
+            if(!vis[0][j] && mat[0][j]=='O'){
+                dfs(0,j,mat,vis,del1,del2,n,m);
+            }
+            if(!vis[n-1][j] && mat[n-1][j]=='O'){
+                dfs(n-1,j,mat,vis,del1,del2,n,m);
+            }
+        }
+        for(int i=0;i<n;i++){
+               if(!vis[i][0] && mat[i][0]=='O'){
+                dfs(i,0,mat,vis,del1,del2,n,m);
+            }
+            if(!vis[i][m-1] && mat[i][m-1]=='O'){
+                dfs(i,m-1,mat,vis,del1,del2,n,m);
+            }
+        }
+        for(int i=0;i<n;i++){
+            for(int j=0;j<m;j++){
+                if(!vis[i][j] && mat[i][j]=='O'){
+                    mat[i][j]='X';
+                }
+            }
+        }
+        return mat;
+    }
+};
+
+###number of enclaves
+class Solution {
+private:
+    void dfs(int p, int q, vector<vector<int>>& mat, vector<vector<int>>& vis, int *del1, int *del2, int n, int m) {
+        vis[p][q] = 1;
+        mat[p][q] = 0;
+        for (int i = 0; i < 4; i++) {
+            int nrow = p + del1[i];
+            int ncol = q + del2[i];
+            if (nrow >= 0 && nrow < n && ncol >= 0 && ncol < m && mat[nrow][ncol] == 1 && !vis[nrow][ncol]) {
+                dfs(nrow, ncol, mat, vis, del1, del2, n, m);
+            }
+        }
+    }
+public:
+    int numberOfEnclaves(vector<vector<int>>& grid) {
+        int n = grid.size();
+        int m = grid[0].size();
+        vector<vector<int>> vis(n, vector<int>(m, 0));
+        vector<vector<int>> newmat = grid;  
+
+        int del1[] = {-1, 0, +1, 0};
+        int del2[] = {0, +1, 0, -1};
+        
+        for (int j = 0; j < m; j++) {
+            if (!vis[0][j] && grid[0][j] == 1) {
+                dfs(0, j, grid, vis, del1, del2, n, m);
+            }
+            if (!vis[n - 1][j] && grid[n - 1][j] == 1) {
+                dfs(n - 1, j, grid, vis, del1, del2, n, m);
+            }
+        }
+        for (int i = 0; i < n; i++) {
+            if (!vis[i][0] && grid[i][0] == 1) {
+                dfs(i, 0, grid, vis, del1, del2, n, m);
+            }
+            if (!vis[i][m - 1] && grid[i][m - 1] == 1) {
+                dfs(i, m - 1, grid, vis, del1, del2, n, m);
+            }
+        }
+        int count = 0;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                if (grid[i][j] == 1) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
+};
+
+
+###no of distinct islands
+class Solution {
+    private:
+    void dfs(int row,int col,vector<vector<int>>&vis,vector<vector<int>>& grid,vector<pair<int,int>>&p,int row0,int col0){
+        vis[row][col]=1;
+        int n=grid.size();
+        int m=grid[0].size();
+        p.push_back({row-row0,col-col0});
+        int del1[]={-1,+1,0,0};
+        int del2[]={0,0,-1,+1};
+        for(int i=0;i<4;i++){
+            int nrow=row+del1[i];
+            int ncol=col+del2[i];
+             if (nrow >= 0 && nrow < n && ncol >= 0 && ncol < m && grid[nrow][ncol] == 1 && !vis[nrow][ncol]) {
+                dfs(nrow, ncol, vis, grid,p,row0,col0);
+            }
+        }
+    }
+  public:
+    int countDistinctIslands(vector<vector<int>>& grid) {
+        int n=grid.size();
+        int m=grid[0].size();
+        vector<vector<int>>vis(n,vector<int>(m,0));
+        set<vector<pair<int,int>>>st;
+        for(int i=0;i<n;i++){
+            for(int j=0;j<m;j++){
+                if(!vis[i][j] && grid[i][j]){
+                vector<pair<int,int>>p;
+                dfs(i,j,vis,grid,p,i,j);
+                st.insert(p);
+            }
+        }
+        }
+        return st.size();
+    }
+};
+
+
+###biparite graph dfs
+class Solution {
+    private:
+    bool dfs(int node,int color1, vector<int>adj[],int *color){
+        color[node]=color1;
+        for(auto it:adj[node]){
+            if(color[it]==-1){
+                if(dfs(it,!color1,adj,color)==false)  return false;
+            }
+            else if(color[it]==color1){
+                return false;
+            }
+        }
+        return true;
+    }
+public:
+	bool isBipartite(int V, vector<int>adj[]){
+	    int color[V];
+	    for(int i=0;i<V;i++) color[i]=-1;
+	        for(int i=0;i<V;i++){
+	        if(color[i]==-1){
+	          if(dfs(i,0,adj,color)==false) return false;
+	        }
+	    }
+	    return true;
+	}
+
+};
+
+###detect cycle in a directed graph
+class Solution {
+    private:
+    bool dfs(int node,vector<int>adj[],int *vis,int *pathvis){
+        vis[node]=1;
+        pathvis[node]=1;
+        for(auto it:adj[node]){
+            if(!vis[it]){
+                if(dfs(it,adj,vis,pathvis)==true) return true;
+            }
+            else if(pathvis[it]) return true;
+        }
+        pathvis[node]=0;
+        return false;
+    }
+  public:
+    // Function to detect cycle in a directed graph.
+    bool isCyclic(int V, vector<int> adj[]) {
+        int vis[V]={0};
+        int pathvis[V]={0};
+        for(int i=0;i<V;i++){
+            if(!vis[i]){
+                if(dfs(i,adj,vis,pathvis)==true) return true;
+            }
+        }
+        return false;
+    }
+};
+
+###safe states 
+class Solution {
+    private:
+     bool dfs(int node,vector<int>adj[],int *vis,int *pathvis,int *check){
+        vis[node]=1;
+        pathvis[node]=1;
+        check[node]=0;
+        for(auto it:adj[node]){
+            if(!vis[it]){
+                if(dfs(it,adj,vis,pathvis,check)==true) {
+                    check[node]=0;
+                    return true;
+            }
+            }
+            else if(pathvis[it]){
+            check[node]=0;
+            return true;
+            }
+        }
+        check[node]=1;
+        pathvis[node]=0;
+        return false;
+    }
+  public:
+    vector<int> eventualSafeNodes(int V, vector<int> adj[]) {
+        int vis[V]={0};
+        int pathvis[V]={0};
+        int check[V]={0};
+        vector<int>safe;
+        for(int i=0;i<V;i++){
+            if(!vis[i]){
+                dfs(i,adj,vis,pathvis,check);
+            }
+        }
+        for(int i=0;i<V;i++){
+            if(check[i]==1) safe.push_back(i);
+        }
+        return safe;
+    }
+};
+
+
+
+

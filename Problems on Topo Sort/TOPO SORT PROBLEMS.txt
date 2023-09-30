@@ -1,0 +1,231 @@
+###TOPO SORT
+class Solution
+{
+    private:
+       bool dfs(int node,vector<int>adj[],int *vis,stack<int>&s){
+        vis[node]=1;
+        for(auto it:adj[node]){
+            if(!vis[it]){
+                dfs(it,adj,vis,s);
+            }
+        }
+        s.push(node);
+       }
+    
+	public:
+	//Function to return list containing vertices in Topological order. 
+	vector<int> topoSort(int V, vector<int> adj[]) 
+	{
+	    int vis[V]={0};
+        stack<int>s;
+        vector<int>safe;
+        for(int i=0;i<V;i++){
+            if(!vis[i]){
+                dfs(i,adj,vis,s);
+            }
+        }
+     while(!s.empty()){
+         int t=s.top();
+         s.pop();
+         safe.push_back(t);
+     }
+     return safe;
+	}
+};
+
+
+###topo sort bfs
+class Solution
+{
+	public:
+	//Function to return list containing vertices in Topological order. 
+	vector<int> topoSort(int V, vector<int> adj[]) 
+	{
+	    int indegree[V]={0};
+	    for(int i=0;i<V;i++){
+	        for(auto it:adj[i]){
+	            indegree[it]++;
+	        }
+	    }
+	    queue<int>q;
+	    for(int i=0;i<V;i++){
+	        if(indegree[i]==0){
+	            q.push(i);
+	        }
+	    }
+	    vector<int>ans;
+	    while(!q.empty()){
+	        int t=q.front();
+	        q.pop();
+	        ans.push_back(t);
+	        
+	        for(auto it:adj[t]){
+	            indegree[it]--;
+	            if(indegree[it]==0) q.push(it);
+	        }
+	    }
+	    return ans;
+	    
+	}
+};
+
+###course schedule 1
+class Solution {
+public:
+	bool isPossible(int N,int P, vector<pair<int, int> >& prerequisites) {
+	    vector<int>adj[N];
+	    for(auto it: prerequisites){
+	        adj[it.first].push_back(it.second);
+	    }
+	    int indegree[N]={0};
+	    for(int i=0;i<N;i++){
+	        for(auto it:adj[i]){
+	            indegree[it]++;
+	        }
+	    }
+	    queue<int>q;
+	    for(int i=0;i<N;i++){
+	        if(indegree[i]==0){
+	            q.push(i);
+	        }
+	    }
+	    vector<int>ans;
+	    while(!q.empty()){
+	        int t=q.front();
+	        q.pop();
+	        ans.push_back(t);
+	        
+	        for(auto it:adj[t]){
+	            indegree[it]--;
+	            if(indegree[it]==0) q.push(it);
+	        }
+	    }
+	    return ans.size()==N;
+	    
+	}
+};
+
+###course scheduler 2
+class Solution
+{
+  public:
+    vector<int> findOrder(int n, int m, vector<vector<int>> prerequisites) 
+    {
+      vector<int>adj[n];
+	    for(auto it: prerequisites){
+	        adj[it[1]].push_back(it[0]);
+	    }
+	    int indegree[n]={0};
+	    for(int i=0;i<n;i++){
+	        for(auto it:adj[i]){
+	            indegree[it]++;
+	        }
+	    }
+	    queue<int>q;
+	    for(int i=0;i<n;i++){
+	        if(indegree[i]==0){
+	            q.push(i);
+	        }
+	    }
+	    vector<int>ans;
+	    while(!q.empty()){
+	        int t=q.front();
+	        q.pop();
+	        ans.push_back(t);
+	        
+	        for(auto it:adj[t]){
+	            indegree[it]--;
+	            if(indegree[it]==0) q.push(it);
+	        }
+	    }
+	    if(ans.size()==n) return ans;
+	    return {};
+	}
+};
+
+
+###alien dictionary
+class Solution{
+    private:
+    vector<int>f(int N,vector<int>adj[]){
+     int indegree[N]={0};
+	    for(int i=0;i<N;i++){
+	        for(auto it:adj[i]){
+	            indegree[it]++;
+	        }
+	    }
+	    queue<int>q;
+	    for(int i=0;i<N;i++){
+	        if(indegree[i]==0){
+	            q.push(i);
+	        }
+	    }
+	  vector<int>ans;
+	    while(!q.empty()){
+	        char t=q.front();
+	        q.pop();
+	        ans.push_back(t);
+	        
+	        for(auto it:adj[t]){
+	            indegree[it]--;
+	            if(indegree[it]==0) q.push(it);
+	        }
+	    }
+	    return ans;
+	    
+    }
+    public:
+    string findOrder(string dict[], int N, int K) {
+        vector<int>adj[K];
+        for(int i=0;i<N-1;i++){
+            string s1=dict[i];
+            string s2=dict[i+1];
+            int len=min(s1.size(),s2.size());
+            for(int p=0;p<len;p++){
+                if(s1[p]!=s2[p]) {
+                adj[s1[p]-'a'].push_back(s2[p]-'a');
+                    break;
+                }
+            }
+        }
+        vector<int>temp=f(K,adj);
+        string ans="";
+        for(auto it:temp){
+            ans=ans+char(it+'a');
+        }
+        return ans;
+    }
+       
+};
+
+####word ladder 1 ****
+class Solution {
+public:
+    int wordLadderLength(string startWord, string targetWord, vector<string>& wordList) {
+        queue<pair<string,int>>q;
+        q.push({startWord,1});
+        unordered_set<string>st(wordList.begin(),wordList.end());
+        st.erase(startWord);
+        while(!q.empty()){
+            string p=q.front().first;
+            int  steps=q.front().second;
+            q.pop();
+            if(p==targetWord) return steps;
+            for(int i=0;i<p.size();i++){
+                char r=p[i];
+                for(char c='a';c<='z';c++){
+                    p[i]=c;
+                    if(st.find(p)!=st.end()){
+                        st.erase(p);
+                        q.push({p,steps+1});
+                    }
+                }
+                p[i]=r;
+            }
+        }
+        return 0;
+    }
+};
+
+
+

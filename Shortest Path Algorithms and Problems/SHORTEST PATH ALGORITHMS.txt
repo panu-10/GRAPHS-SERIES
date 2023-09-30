@@ -1,0 +1,464 @@
+###shortest path in DAG
+class Solution {
+private:
+    void dfs(int node, vector<pair<int, int>> adj[], vector<int>& vis, stack<int>& s) {
+        vis[node] = 1;
+        for (auto it : adj[node]) {
+            int v = it.first;
+            if (!vis[v]) {
+                dfs(v, adj, vis, s);
+            }
+        }
+        s.push(node);
+    }
+
+public:
+    vector<int> shortestPath(int N, int M, vector<vector<int>>& edges) {
+        vector<pair<int, int>> adj[N];
+        for (int i = 0; i < M; i++) {
+            int p = edges[i][0];
+            int q = edges[i][1];
+            int r = edges[i][2];
+            adj[p].push_back({q, r});
+        }
+        vector<int> vis(N, 0);
+        stack<int> s;
+        for (int i = 0; i < N; i++) {
+            if (!vis[i]) {
+                dfs(i, adj, vis, s);
+            }
+        }
+        vector<int> dist(N, INT_MAX);
+        dist[0] = 0;
+        while (!s.empty()) {
+            int node = s.top();
+            s.pop();
+            for (auto it : adj[node]) {
+                int v = it.first;
+                int p = it.second;
+                if ( dist[node] != INT_MAX && dist[node] + p < dist[v]) {
+                    dist[v] = dist[node] + p;
+                }
+            }
+        }
+        for(int i=0;i<N;i++){
+            if(dist[i]==INT_MAX) dist[i]=-1;
+        }
+        return dist;
+    }
+};
+
+
+##shortest path in udg 
+class Solution {
+  public:
+    vector<int> shortestPath(vector<vector<int>>& edges, int N,int M, int src){
+      vector<int>adj[N];
+       for(auto it:edges){
+           adj[it[0]].push_back(it[1]);
+           adj[it[1]].push_back(it[0]);
+       }
+        queue<pair<int,int>>q;
+        q.push({src,0});
+        vector<int> dist(N, INT_MAX);
+        dist[src] = 0;
+        while (!q.empty()) {
+            int node = q.front().first;
+            q.pop();
+            for (auto it : adj[node]) {
+                if ( dist[node] != INT_MAX && dist[node] + 1 < dist[it]) {
+                    dist[it] = dist[node] + 1;
+                    q.push({it,dist[it]});
+                }
+            }
+        }
+        for(int i=0;i<N;i++){
+            if(dist[i]==INT_MAX) dist[i]=-1;
+        }
+        return dist;
+    }
+};
+
+
+####dijikstra using pq
+class Solution
+{
+     public:
+    vector <int> dijkstra(int V, vector<vector<int>> adj[], int S)
+    {
+        priority_queue<pair<int,int>,vector<pair<int,int>>,greater<pair<int,int>>>pq;
+        vector<int>dist(V,INT_MAX);
+        dist[S]=0;
+        pq.push({0,S});
+        while(!pq.empty()){
+            int node=pq.top().second;
+            int dis=pq.top().first;
+            pq.pop();
+            for(auto it:adj[node]){
+                int p1=it[0];
+                int p2=it[1];
+                if(dis+p2< dist[p1]){
+                    dist[p1]=dis+p2;
+                    pq.push({dist[p1],p1});
+                }
+            }
+        }
+        return dist;
+    }
+};
+
+
+###dijikstra using set ****
+class Solution
+{
+	public:
+    vector <int> dijkstra(int V, vector<vector<int>> adj[], int S)
+    {
+        set<pair<int,int>>s;
+        vector<int>dist(V,INT_MAX);
+        dist[S]=0;
+        s.insert({0,S});
+        while(!s.empty()){
+            auto it=*(s.begin());
+            int node=it.second;
+            int dis=it.first;
+            s.erase(it);
+            for(auto it:adj[node]){
+                int p1=it[0];
+                int p2=it[1];
+                if(dis+p2< dist[p1]){
+                    if(dist[p1]!=INT_MAX){
+                        s.erase({dist[p1],p1});
+                    }
+                    dist[p1]=dis+p2;
+                    s.insert({dist[p1],p1});
+                }
+            }
+        }
+        return dist;
+    }1
+};
+
+###shortest print path in ug
+class Solution {
+  public:
+    vector<int> shortestPath(int n, int m, vector<vector<int>>& edges) {
+        vector<pair<int,int>>adj[n+1];
+        for(auto it:edges){
+           adj[it[0]].push_back({it[1],it[2]});
+           adj[it[1]].push_back({it[0],it[2]});
+        }
+        priority_queue<pair<int,int>,vector<pair<int,int>>,greater<pair<int,int>>>pq;
+        vector<int>dist(n+1,INT_MAX);
+        dist[1]=0;
+        vector<int>parent(n+1);
+        for(int i=1;i<=n;i++) parent[i]=1;
+        pq.push({0,1});
+        while(!pq.empty()){
+            int node=pq.top().second;
+            int dis=pq.top().first;
+            pq.pop();
+            for(auto it:adj[node]){
+                int p1=it.first;
+                int p2=it.second;
+                if(dis+p2< dist[p1]){
+                    dist[p1]=dis+p2;
+                    pq.push({dist[p1],p1});
+                    parent[p1]=node;
+                }
+            }
+        }
+        if(dist[n]==INT_MAX) return {-1};
+        int f=n;
+        vector<int>ans;
+        while(parent[f]!=f){
+            ans.push_back(f);
+            f=parent[f];
+        }
+        ans.push_back(1);
+        reverse(ans.begin(),ans.end());
+        return ans;
+    }
+};
+
+
+
+####shortest path in a binary maze ********
+class Solution {
+  public:
+    int shortestPath(vector<vector<int>> &grid, pair<int, int> source,
+                     pair<int, int> destination) {
+       queue<pair<int,pair<int,int>>>q;
+       int n=grid.size();
+       int m=grid[0].size();
+       vector<vector<int>>dist(n,vector<int>(m,INT_MAX));
+       int del1[]={-1,+1,0,0};
+       int del2[]={0,0,+1,-1};
+       dist[source.first][source.second]=0;
+       int des1=destination.first;
+       int des2=destination.second;
+       q.push({0,{source.first,source.second}});
+       if(source.first==des1 && source.second==des2) return 0;
+       while(!q.empty()){
+           int p=q.front().second.first;
+           int r=q.front().second.second;
+           int dis=q.front().first;
+           q.pop();
+           for(int i=0;i<4;i++){
+               int nrow=p+del1[i];
+               int ncol=r+del2[i];
+               if(nrow>=0 && nrow<n && ncol>=0 && ncol<m && grid[nrow][ncol]==1 && dist[nrow][ncol]>dis+1){
+                    dist[nrow][ncol]=dis+1;
+                    if(nrow==des1 && ncol==des2){
+                         return dis+1;
+                    }
+                   q.push({dis+1,{nrow,ncol}});
+               }
+           }
+       }
+       return -1;
+    }
+};
+
+###path with minimum effort
+class Solution {
+  public:
+    int MinimumEffort(vector<vector<int>>& heights) {
+       priority_queue<pair<int,pair<int,int>>,vector<pair<int,pair<int,int>>>,greater<pair<int,pair<int,int>>>>pq;
+       int n=heights.size();
+       int m=heights[0].size();
+       vector<vector<int>>dist(n,vector<int>(m,INT_MAX));
+       int del1[]={-1,+1,0,0};
+       int del2[]={0,0,+1,-1};
+       dist[0][0]=0;
+       int des1=n-1;
+       int des2=m-1;
+       pq.push({0,{0,0}});
+       while(!pq.empty()){
+           int p=pq.top().second.first;
+           int r=pq.top().second.second;
+           int dis=pq.top().first;
+           pq.pop();
+           if(p==n-1 && r==m-1) return dis;
+           for(int i=0;i<4;i++){
+               int nrow=p+del1[i];
+               int ncol=r+del2[i];
+               if(nrow>=0 && nrow<n && ncol>=0 && ncol<m){
+                   int neweff=max(abs(heights[p][r]-heights[nrow][ncol]),dis);
+                   if(neweff<dist[nrow][ncol]){
+                    dist[nrow][ncol]=neweff;
+                   pq.push({neweff,{nrow,ncol}});
+               }
+           }
+       }
+       }
+       return 0;
+    }
+};
+
+
+
+###cheapest flights with k stops
+class Solution {
+  public:
+    int CheapestFLight(int n, vector<vector<int>>& flights, int src, int dst, int K)  {
+        vector<pair<int,int>>adj[n];
+        for(auto it:flights){
+            adj[it[0]].push_back({it[1],it[2]});
+        }
+         vector<int>dist(n,INT_MAX);
+         queue<pair<int,pair<int,int>>>q;
+         dist[src]=0;
+         q.push({0,{src,0}});
+         while(!q.empty()){
+             int stops=q.front().first;
+             int node=q.front().second.first;
+             int dis=q.front().second.second;
+             q.pop();
+             if(stops> K) continue;
+             for(auto it:adj[node]){
+                 int node1=it.first;
+                 int dis2=it.second;
+                 if(dist[node1]>dis+dis2 && stops<=K){
+                     dist[node1]=dis+dis2;
+                     q.push({stops+1,{node1,dist[node1]}});
+                 }
+             }
+         }
+             if(dist[dst]==INT_MAX) return -1;
+             return dist[dst];
+    }
+};
+
+
+###minimum multiplications to reach end
+class Solution {
+   
+  public:
+    int minimumMultiplications(vector<int>& arr, int start, int end) {
+        vector<int>dist(100000,1e9);
+        if(start==end) return 0;
+        queue<pair<int,int>>q;
+        dist[start]=0;
+        q.push({0,start});
+         int mod=100000;
+        while(!q.empty()){
+             int dis=q.front().first;
+             int node=q.front().second;
+             q.pop();
+            for(auto it:arr){
+                 int num=(node *it)%mod;
+                 if(dist[num]>dis+1){
+                     dist[num]=dis+1;
+                     if(num==end) return dis+1;
+                     q.push({dis+1,num});
+                 }
+             }
+        }
+        return -1;
+    }
+};
+
+###number of ways to arrive at destination
+class Solution {
+
+  public:
+    int countPaths(int n, vector<vector<int>>& roads) {
+        vector<pair<int,int>>adj[n];
+        for(auto it:roads){
+            adj[it[0]].push_back({it[1],it[2]});
+            adj[it[1]].push_back({it[0],it[2]});
+        }
+        vector<int>dist(n,INT_MAX);
+        int mod=1e9+7;
+        dist[0]=0;
+        priority_queue<pair<int,int>,vector<pair<int,int>>,greater<pair<int,int>>>pq;
+        pq.push({0,0});
+        vector<int>ways(n,0);
+        ways[0]=1;
+        while(!pq.empty()){
+            int node=pq.top().first;
+            int dis=pq.top().second;
+            pq.pop();
+            for(auto it:adj[node]){
+                int s1=it.first;
+                int s2=it.second;
+                if(dist[s1]>dis+s2){
+                    dist[s1]=dis+s2;
+                    pq.push({s1,dist[s1]});
+                    ways[s1]=ways[node];
+                }
+                else if(dist[s1]==dis+s2){
+                    ways[s1]=(ways[s1]+ways[node])%mod;
+                }
+            }
+        }
+        return ways[n-1]%mod;
+    }
+};
+
+
+
+###bellman ford algo (n-1) times + 1 time for checking negative cycle
+class Solution {
+  public:
+    vector<int> bellman_ford(int V, vector<vector<int>>& edges, int S) {
+        
+        vector<int>dist(V,1e8);
+        dist[S]=0;
+        const int mod=1e9+7;
+        for(int i=0;i<V-1;i++){
+            for(auto it:edges){
+                int u=it[0];
+                int v=it[1];
+                int wt=it[2];
+                if(dist[u]!=1e8 && dist[v] >dist[u]+wt ){
+                    dist[v]=dist[u]+wt;
+                }
+            }
+        }
+        for(auto it:edges){
+              int u=it[0];
+              int v=it[1];
+              int wt=it[2];
+              if(dist[u]!=1e8 && dist[v] >dist[u]+wt){
+                    return {-1};
+                }
+        }
+        return dist;
+    }
+};
+
+
+
+####floyd warshall algo
+class Solution {
+  public:
+	void shortest_distance(vector<vector<int>>&matrix){
+	     int n=matrix.size();
+	     int m=matrix[0].size();
+	     for(int i=0;i<n;i++){
+	         for(int j=0;j<n;j++){
+	             if(matrix[i][j]==-1){
+	                 matrix[i][j]=1e9;
+	             }
+	             if(i==j) matrix[i][j]=0;
+	         }
+	     }
+	     for(int val=0;val<n;val++){
+	         for(int i=0;i<n;i++){
+	             for(int j=0;j<n;j++){
+	                 matrix[i][j]=min(matrix[i][j],matrix[i][val]+matrix[val][j]);
+	             }
+	         }
+	     }
+	    
+	     for(int i=0;i<n;i++){
+	         for(int j=0;j<n;j++){
+	         if(matrix[i][j]==1e9) matrix[i][j]=-1;
+	     }
+	     }
+	}
+	
+};
+
+
+###City With the Smallest Number of Neighbors at a Threshold Distance
+class Solution {
+  public:
+    int findCity(int n, int m, vector<vector<int>>& edges,
+                 int distanceThreshold) {
+             vector<vector<int>>dist(n,vector<int>(m,INT_MAX));
+             for(auto it:edges){
+                 dist[it[0]][it[1]]=it[2];
+                  dist[it[1]][it[0]]=it[2];
+             }
+             for(int i=0;i<n;i++) dist[i][i]=0;
+              for(int val=0;val<n;val++){
+	         for(int i=0;i<n;i++){
+	             for(int j=0;j<n;j++){
+	                 if(dist[i][val] ==INT_MAX || dist[val][j]==INT_MAX)
+	                 continue;
+	                 dist[i][j]=min(dist[i][j],dist[i][val]+dist[val][j]);
+	             }
+	         }
+	     }
+	  
+	     int max1=n;
+	     int cityno=-1;
+	     for(int i=0;i<n;i++){
+	            int count=0;
+	         for(int j=0;j<n;j++){
+	             if(dist[i][j]<=distanceThreshold){
+	                 count++;
+	             }
+                 }
+	             if(count<=max1){
+	                 max1=count;
+	                 cityno=i;
+	             }
+	         }
+	     return cityno;
+                 }
+
+};
